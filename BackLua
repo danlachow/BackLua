@@ -1,6 +1,6 @@
-local BackLua = {}
+local bk = {}
 
-function BackLua.New(className, properties)
+function bk.New(className, properties)
     local instance = Instance.new(className)
     for property, value in pairs(properties) do
         instance[property] = value
@@ -8,17 +8,17 @@ function BackLua.New(className, properties)
     return instance
 end
 
-function BackLua.Tween(object, properties, duration, easingStyle, easingDirection)
+function bk.Tween(object, properties, duration, easingStyle, easingDirection)
     local tweenInfo = TweenInfo.new(duration, easingStyle or Enum.EasingStyle.Linear, easingDirection or Enum.EasingDirection.Out)
     local tween = game:GetService("TweenService"):Create(object, tweenInfo, properties)
     tween:Play()
     return tween
 end
 
-BackLua.Wait = task.wait
-BackLua.Spawn = task.spawn
+bk.Wait = task.wait
+bk.Spawn = task.spawn
 
-function BackLua.Debounce(func, delay)
+function bk.Debounce(func, delay)
     local lastCall = 0
     return function(...)
         local now = tick()
@@ -29,12 +29,12 @@ function BackLua.Debounce(func, delay)
     end
 end
 
-function BackLua.Connect(event, func)
+function bk.Connect(event, func)
     return event:Connect(func)
 end
 
-function BackLua.CreatePart(size, position, color, parent)
-    local part = BackLua.New("Part", {
+function bk.Part(size, position, color, parent)
+    return bk.New("Part", {
         Size = size,
         Position = position,
         Anchored = true,
@@ -42,75 +42,142 @@ function BackLua.CreatePart(size, position, color, parent)
         Color = color,
         Parent = parent
     })
-    return part
 end
 
-function BackLua.CreateGui(text, size, position, parent)
-    local gui = BackLua.New("ScreenGui", {Parent = parent})
-    local textLabel = BackLua.New("TextLabel", {
-        Size = size,
-        Position = position,
-        Text = text,
-        TextColor3 = Color3.new(1, 1, 1),
-        BackgroundColor3 = Color3.new(0, 0, 0),
-        Parent = gui
-    })
-    return gui
+function bk.Gui(name, parent)
+    return bk.New("ScreenGui", { Name = name, Parent = parent })
 end
 
-function BackLua.Random(min, max)
+function bk.Rand(min, max)
     return math.random(min, max)
 end
 
-function BackLua.Round(number, decimalPlaces)
+function bk.Round(number, decimalPlaces)
     local multiplier = 10 ^ (decimalPlaces or 0)
     return math.floor(number * multiplier + 0.5) / multiplier
 end
 
-function BackLua.Map(value, start1, stop1, start2, stop2)
+function bk.Map(value, start1, stop1, start2, stop2)
     return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1)
 end
 
-function BackLua.AddFunction(name, func)
+function bk.AddFunc(name, func)
     if type(func) == "function" then
-        BackLua[name] = func
-    else
-        warn("BackLua: AddFunction failed - second argument must be a function.")
+        bk[name] = func
     end
 end
 
-function BackLua.SaveFunction(name, func)
-    if type(func) == "function" then
-        BackLua[name] = func
-        warn("BackLua: Function '" .. name .. "' saved.")
-    else
-        warn("BackLua: SaveFunction failed - second argument must be a function.")
-    end
+function bk.SaveFunc(name, func)
+    bk.AddFunc(name, func)
 end
 
-function BackLua.LoadFunction(name)
-    if BackLua[name] then
-        return BackLua[name]
-    else
-        warn("BackLua: Function '" .. name .. "' not found.")
-    end
+function bk.LoadFunc(name)
+    return bk[name]
 end
 
-function BackLua.RemoveFunction(name)
-    if BackLua[name] then
-        BackLua[name] = nil
-        warn("BackLua: Function '" .. name .. "' removed.")
-    else
-        warn("BackLua: Function '" .. name .. "' not found.")
-    end
+function bk.RemoveFunc(name)
+    bk[name] = nil
 end
 
-function BackLua.ListFunctions()
-    for name, _ in pairs(BackLua) do
-        if type(BackLua[name]) == "function" then
-            print("Function: " .. name)
+function bk.ListFuncs()
+    for name, func in pairs(bk) do
+        if type(func) == "function" then
+            print(name)
         end
     end
 end
 
-return BackLua
+function bk.TextLabel(text, size, position, parent)
+    return bk.New("TextLabel", {
+        Text = text,
+        Size = size,
+        Position = position,
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.new(1, 1, 1),
+        Parent = parent
+    })
+end
+
+function bk.Frame(size, position, color, parent)
+    return bk.New("Frame", {
+        Size = size,
+        Position = position,
+        BackgroundColor3 = color,
+        Parent = parent
+    })
+end
+
+function bk.Button(text, size, position, color, parent, onClick)
+    local button = bk.New("TextButton", {
+        Text = text,
+        Size = size,
+        Position = position,
+        BackgroundColor3 = color,
+        Parent = parent
+    })
+    if onClick then
+        button.MouseButton1Click:Connect(onClick)
+    end
+    return button
+end
+
+function bk.Destroy(object)
+    if object and object.Destroy then
+        object:Destroy()
+    end
+end
+
+function bk.Clone(object)
+    if object and object.Clone then
+        return object:Clone()
+    end
+end
+
+function bk.SetProperties(object, properties)
+    for property, value in pairs(properties) do
+        object[property] = value
+    end
+end
+
+function bk.GetChildren(parent, className)
+    local children = {}
+    for _, child in ipairs(parent:GetChildren()) do
+        if not className or child:IsA(className) then
+            table.insert(children, child)
+        end
+    end
+    return children
+end
+
+function bk.ToggleVisibility(object)
+    if object and object:IsA("GuiObject") then
+        object.Visible = not object.Visible
+    end
+end
+
+function bk.CreateFolder(name, parent)
+    return bk.New("Folder", { Name = name, Parent = parent })
+end
+
+function bk.CreateSound(id, parent, volume, looped)
+    return bk.New("Sound", {
+        SoundId = "rbxassetid://" .. id,
+        Parent = parent,
+        Volume = volume or 1,
+        Looped = looped or false
+    })
+end
+
+function bk.PlaySound(sound)
+    if sound and sound:IsA("Sound") then
+        sound:Play()
+    end
+end
+
+function bk.StopSound(sound)
+    if sound and sound:IsA("Sound") then
+        sound:Stop()
+    end
+end
+
+return bk
