@@ -1,7 +1,5 @@
--- BackLua.lua
 local BackLua = {}
 
--- Упрощенный вызов Instance.new
 function BackLua.New(className, properties)
     local instance = Instance.new(className)
     for property, value in pairs(properties) do
@@ -10,7 +8,6 @@ function BackLua.New(className, properties)
     return instance
 end
 
--- Упрощенный Tween
 function BackLua.Tween(object, properties, duration, easingStyle, easingDirection)
     local tweenInfo = TweenInfo.new(duration, easingStyle or Enum.EasingStyle.Linear, easingDirection or Enum.EasingDirection.Out)
     local tween = game:GetService("TweenService"):Create(object, tweenInfo, properties)
@@ -18,13 +15,9 @@ function BackLua.Tween(object, properties, duration, easingStyle, easingDirectio
     return tween
 end
 
--- Упрощенный Wait
 BackLua.Wait = task.wait
-
--- Упрощенный Spawn
 BackLua.Spawn = task.spawn
 
--- Упрощенный Debounce
 function BackLua.Debounce(func, delay)
     local lastCall = 0
     return function(...)
@@ -36,12 +29,10 @@ function BackLua.Debounce(func, delay)
     end
 end
 
--- Упрощенный Connect для событий
 function BackLua.Connect(event, func)
     return event:Connect(func)
 end
 
--- Упрощенный CreatePart
 function BackLua.CreatePart(size, position, color, parent)
     local part = BackLua.New("Part", {
         Size = size,
@@ -54,7 +45,6 @@ function BackLua.CreatePart(size, position, color, parent)
     return part
 end
 
--- Упрощенный CreateGui с текстом
 function BackLua.CreateGui(text, size, position, parent)
     local gui = BackLua.New("ScreenGui", {Parent = parent})
     local textLabel = BackLua.New("TextLabel", {
@@ -68,23 +58,19 @@ function BackLua.CreateGui(text, size, position, parent)
     return gui
 end
 
--- Упрощенный Random
 function BackLua.Random(min, max)
     return math.random(min, max)
 end
 
--- Упрощенный Round
 function BackLua.Round(number, decimalPlaces)
     local multiplier = 10 ^ (decimalPlaces or 0)
     return math.floor(number * multiplier + 0.5) / multiplier
 end
 
--- Упрощенный Map
 function BackLua.Map(value, start1, stop1, start2, stop2)
     return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1)
 end
 
--- Добавление своих функций
 function BackLua.AddFunction(name, func)
     if type(func) == "function" then
         BackLua[name] = func
@@ -93,5 +79,39 @@ function BackLua.AddFunction(name, func)
     end
 end
 
--- Возвращаем модуль
-return BackLua
+function BackLua.SaveFunction(name, func)
+    if type(func) == "function" then
+        BackLua[name] = func
+        warn("BackLua: Function '" .. name .. "' saved.")
+    else
+        warn("BackLua: SaveFunction failed - second argument must be a function.")
+    end
+end
+
+function BackLua.LoadFunction(name)
+    if BackLua[name] then
+        return BackLua[name]
+    else
+        warn("BackLua: Function '" .. name .. "' not found.")
+    end
+end
+
+function BackLua.RemoveFunction(name)
+    if BackLua[name] then
+        BackLua[name] = nil
+        warn("BackLua: Function '" .. name .. "' removed.")
+    else
+        warn("BackLua: Function '" .. name .. "' not found.")
+    end
+end
+
+function BackLua.ListFunctions()
+    for name, _ in pairs(BackLua) do
+        if type(BackLua[name]) == "function" then
+            print("Function: " .. name)
+        end
+    end
+end
+
+local bk = BackLua
+return bk
