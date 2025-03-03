@@ -1,5 +1,7 @@
+-- BackLua.lua
 local BackLua = {}
 
+-- Упрощенный вызов Instance.new
 function BackLua.New(className, properties)
     local instance = Instance.new(className)
     for property, value in pairs(properties) do
@@ -8,6 +10,7 @@ function BackLua.New(className, properties)
     return instance
 end
 
+-- Упрощенный Tween
 function BackLua.Tween(object, properties, duration, easingStyle, easingDirection)
     local tweenInfo = TweenInfo.new(duration, easingStyle or Enum.EasingStyle.Linear, easingDirection or Enum.EasingDirection.Out)
     local tween = game:GetService("TweenService"):Create(object, tweenInfo, properties)
@@ -15,10 +18,13 @@ function BackLua.Tween(object, properties, duration, easingStyle, easingDirectio
     return tween
 end
 
+-- Упрощенный Wait
 BackLua.Wait = task.wait
 
+-- Упрощенный Spawn
 BackLua.Spawn = task.spawn
 
+-- Упрощенный Debounce
 function BackLua.Debounce(func, delay)
     local lastCall = 0
     return function(...)
@@ -30,12 +36,14 @@ function BackLua.Debounce(func, delay)
     end
 end
 
+-- Упрощенный Connect для событий
 function BackLua.Connect(event, func)
     return event:Connect(func)
 end
 
+-- Упрощенный CreatePart
 function BackLua.CreatePart(size, position, color, parent)
-    local part = SimplifyLua.New("Part", {
+    local part = BackLua.New("Part", {
         Size = size,
         Position = position,
         Anchored = true,
@@ -46,9 +54,10 @@ function BackLua.CreatePart(size, position, color, parent)
     return part
 end
 
+-- Упрощенный CreateGui с текстом
 function BackLua.CreateGui(text, size, position, parent)
-    local gui = SimplifyLua.New("ScreenGui", {Parent = parent})
-    local textLabel = SimplifyLua.New("TextLabel", {
+    local gui = BackLua.New("ScreenGui", {Parent = parent})
+    local textLabel = BackLua.New("TextLabel", {
         Size = size,
         Position = position,
         Text = text,
@@ -59,26 +68,30 @@ function BackLua.CreateGui(text, size, position, parent)
     return gui
 end
 
+-- Упрощенный Random
 function BackLua.Random(min, max)
     return math.random(min, max)
 end
 
+-- Упрощенный Round
 function BackLua.Round(number, decimalPlaces)
     local multiplier = 10 ^ (decimalPlaces or 0)
     return math.floor(number * multiplier + 0.5) / multiplier
 end
 
+-- Упрощенный Map
 function BackLua.Map(value, start1, stop1, start2, stop2)
     return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1)
 end
 
+-- Добавление своих функций
 function BackLua.AddFunction(name, func)
     if type(func) == "function" then
-        SimplifyLua[name] = func
+        BackLua[name] = func
     else
         warn("BackLua: AddFunction failed - second argument must be a function.")
     end
 end
 
-local bk = BackLua
-
+-- Возвращаем модуль
+return BackLua
