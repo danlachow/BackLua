@@ -1,0 +1,85 @@
+local BackLua = {}
+
+function BackLua.New(className, properties)
+    local instance = Instance.new(className)
+    for property, value in pairs(properties) do
+        instance[property] = value
+    end
+    return instance
+end
+
+function BackLua.Tween(object, properties, duration, easingStyle, easingDirection)
+    local tweenInfo = TweenInfo.new(duration, easingStyle or Enum.EasingStyle.Linear, easingDirection or Enum.EasingDirection.Out)
+    local tween = game:GetService("TweenService"):Create(object, tweenInfo, properties)
+    tween:Play()
+    return tween
+end
+
+BackLua.Wait = task.wait
+
+BackLua.Spawn = task.spawn
+
+function BackLua.Debounce(func, delay)
+    local lastCall = 0
+    return function(...)
+        local now = tick()
+        if now - lastCall >= (delay or 0.2) then
+            lastCall = now
+            func(...)
+        end
+    end
+end
+
+function BackLua.Connect(event, func)
+    return event:Connect(func)
+end
+
+function BackLua.CreatePart(size, position, color, parent)
+    local part = SimplifyLua.New("Part", {
+        Size = size,
+        Position = position,
+        Anchored = true,
+        CanCollide = true,
+        Color = color,
+        Parent = parent
+    })
+    return part
+end
+
+function BackLua.CreateGui(text, size, position, parent)
+    local gui = SimplifyLua.New("ScreenGui", {Parent = parent})
+    local textLabel = SimplifyLua.New("TextLabel", {
+        Size = size,
+        Position = position,
+        Text = text,
+        TextColor3 = Color3.new(1, 1, 1),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        Parent = gui
+    })
+    return gui
+end
+
+function BackLua.Random(min, max)
+    return math.random(min, max)
+end
+
+function BackLua.Round(number, decimalPlaces)
+    local multiplier = 10 ^ (decimalPlaces or 0)
+    return math.floor(number * multiplier + 0.5) / multiplier
+end
+
+function BackLua.Map(value, start1, stop1, start2, stop2)
+    return start2 + (value - start1) * (stop2 - start2) / (stop1 - start1)
+end
+
+function BackLua.AddFunction(name, func)
+    if type(func) == "function" then
+        SimplifyLua[name] = func
+    else
+        warn("BackLua: AddFunction failed - second argument must be a function.")
+    end
+end
+
+local bk = BackLua
+
+return bk
