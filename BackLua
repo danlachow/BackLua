@@ -82,4 +82,3 @@ end
 
 local bk = BackLua
 
-return bk
